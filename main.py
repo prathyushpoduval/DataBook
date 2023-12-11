@@ -16,7 +16,8 @@ def send_message(port, message):
     except ConnectionRefusedError:
         print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
 
-if __name__ == "__main__":
+
+def main():
     nodes = [2000, 2001, 2002]
     processes = []
 
@@ -29,6 +30,11 @@ if __name__ == "__main__":
     for i, process in enumerate(processes):
         print(f"Node {i} started with PID: {process.pid}")
 
+
+if __name__ == "__main__":
+    
+    main()
+    
     # Increase this time if the nodes are not ready
     time.sleep(2)
 
