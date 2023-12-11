@@ -30,11 +30,13 @@ def main():
     for i, process in enumerate(processes):
         print(f"Node {i} started with PID: {process.pid}")
 
+    return nodes,processes
+
 
 if __name__ == "__main__":
     
-    main()
-    
+    nodes, processes=main()
+
     # Increase this time if the nodes are not ready
     time.sleep(2)
 
