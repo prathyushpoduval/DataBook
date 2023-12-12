@@ -6,8 +6,8 @@ def send_message(port, message):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(('localhost', port))
             s.sendall(message.encode('utf-8'))
-            response = s.recv(1024)
-            print(f"Response from node: {response.decode('utf-8')}")
+            #response = s.recv(1024)
+            #print(f"Response from node: {response.decode('utf-8')}")
     except ConnectionRefusedError:
         print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
 
@@ -57,7 +57,6 @@ def start_node(node_id, port):
             data = conn.recv(1024)
             if data:
                 message = data.decode('utf-8')
-                print(f"Node {node_id} received: {message}")
                 conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
 
 
@@ -78,7 +77,7 @@ def start_node_partner(node_id, port):
         if data:
             message = data.decode('utf-8')
             main_node=int(message)
-            print(f"Partner Node {node_id} received handshake from Node {message}")
+            print(f"Partner Node of {node_id} received handshake from Node {message}")
             
 
 
@@ -89,5 +88,4 @@ def start_node_partner(node_id, port):
             data = conn.recv(1024)
             if data:
                 message = data.decode('utf-8')
-                print(f"Node {node_id} received: {message}")
-                conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
+                conn.sendall(f"Partner Node of {node_id} got your message: '{message}'".encode('utf-8'))

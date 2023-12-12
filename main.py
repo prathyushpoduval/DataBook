@@ -15,8 +15,8 @@ def send_message(port, message):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(('localhost', port))
             s.sendall(message.encode('utf-8'))
-            response = s.recv(1024)
-            print(f"Response from node: {response.decode('utf-8')}")
+            #response = s.recv(1024)
+            #print(f"Response from node: {response.decode('utf-8')}")
     except ConnectionRefusedError:
         print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
 
@@ -24,6 +24,9 @@ def send_message(port, message):
 def main():
     nodes = [2000, 2001, 2002]
     node_partners = [3000, 3001, 3002]
+
+    main_partner=4000
+
     processes = []
 
     for i, port in enumerate(nodes):
@@ -40,6 +43,11 @@ def main():
         #Send partner port to the node
         send_message(nodes[i], str(port))
 
+    time.sleep(2)
+    p=Process(target=main_partner, args=(nodes, node_partners))
+    p.start()
+    processes.append(p)
+
     # Print PIDs of all started processes
     for i, process in enumerate(processes):
         print(f"Node {i} started with PID: {process.pid}")
@@ -47,6 +55,9 @@ def main():
     return nodes,processes
 
 
+def main_partner(nodes, node_partners):
+    
+    print("Main partner started")
 
 
 if __name__ == "__main__":
