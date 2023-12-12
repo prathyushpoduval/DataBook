@@ -2,6 +2,7 @@ from multiprocessing import Process
 import node
 import socket
 import time
+import transactions_sql as trans
 
 def run_node(node_id, port):
     node.start_node(node_id, port)
@@ -51,6 +52,53 @@ def main():
     # Print PIDs of all started processes
     for i, process in enumerate(processes):
         print(f"Process {i} started with PID: {process.pid}")
+
+    # ASKS FOR TRANSACTIONS
+
+    user_node_dict={}
+
+    ######
+    #load user_node_list from databases
+    #COMPLETE
+
+    ######
+
+    tranID=0
+    while True:
+        transaction = input("Enter transaction and parameters (or 'exit'): ")
+        if transaction == "exit":
+            break
+
+        tranID+=1
+        
+        if transaction == "create_user":
+            # Handle create_user transaction
+            user_id=input("Enter user_id: ")
+            user_name=input("Enter user_name: ")
+            user_node=input("Enter user_node: ")
+            timestamp=time.time()
+            hops,user_node=trans.create_user(user_id,user_name,timestamp)
+            
+            ########
+            #send hops to nodes
+            #COMPLETE
+
+    
+            #Wait for response from nodes
+
+
+            # Send COMMIT or ABORT to nodes
+
+
+            ########
+
+            pass
+        elif transaction == "another_transaction":
+            # Handle another_transaction
+            pass
+        else:
+            print("Invalid transaction.")
+                
 
     return nodes,processes
 

@@ -49,6 +49,12 @@ def start_node(node_id, port):
             send_message(partner_node,str(node_id))
             print(f"Node {node_id} sent handshake to partner port {message}")
 
+    ##########
+    #Connect to the databse
+    #conn = sqlite3.connect(database_name)
+    #cursor = conn.cursor()
+
+    ##########
 
     while True:
         conn, addr = server.accept()
@@ -57,6 +63,19 @@ def start_node(node_id, port):
             data = conn.recv(1024)
             if data:
                 message = data.decode('utf-8')
+
+                ######
+                # execute SQL commands
+                
+                #cursor.execute(message)
+
+                # abort using rollback() if needed, and send ABORT to main_partner
+                
+                # send conn to node_partner (with transaction ID)
+                # send COMMIT to main_partner (with transaction ID)
+
+                #wait for response 
+                ######
                 conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
 
 

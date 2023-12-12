@@ -21,6 +21,8 @@ def init_db(name):
     # ...
     conn.commit()
 
+    #conn.rollback()
+
 
 if __name__ == "__main__":
 
