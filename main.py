@@ -4,6 +4,9 @@ import socket
 import time
 import transactions_sql as trans
 
+NUM_NODE=3
+
+
 def run_node(node_id, port):
     node.start_node(node_id, port)
 
@@ -23,13 +26,8 @@ def send_message(port, message):
 
 
 def main():
-    nodes = [2000, 2001, 2002]
+    nodes = [2000+i for i in range(NUM_NODE)]
     
-    # don't need partners anymore?
-    node_partners = [3000, 3001, 3002]
-
-    main_partner_port=4000
-
     processes = []
 
     for i, port in enumerate(nodes):
@@ -45,11 +43,9 @@ def main():
         print(f"Process {i} started with PID: {process.pid}")
 
     # ASKS FOR TRANSACTIONS
-
+    #FILL 
     user_node_dict={}
 
-    ######
-    user_node_list = []
     #COMPLETE
 
     ######
@@ -71,7 +67,7 @@ def main():
             user_name=input("Enter user_name: ")
             user_node=input("Enter user_node: ")
             # unsure about user node list
-            user_node_list.append(user_node)
+            user_node_dict[user_node]=user_id
             timestamp=time.time()
             # transaction returns user_node as [user_id, user_id], is this correct?
             hops,user_node=trans.create_user(user_id,user_name,timestamp)
@@ -129,13 +125,23 @@ def main():
             tranID+=-1
         
         ########  
+
+
         if hops:  
+
+            ########
+            #1. Convert user_id to node_id to node_port
+            #2. Split hops so that all the hops for a node are sent together
+            #
+            #
+            #########
+
             #send PREPARE?
             #if PREPARED, send hops
             
             for a in hops:
                 #send hops to nodes
-
+                pass
     
             #Wait for response from nodes
             time.sleep(2)
@@ -147,8 +153,10 @@ def main():
             for response in responses:
                 if response != "ACK":
                     #ABORT
+                    pass
                 else:
                     #COMMIT
+                    pass
                     
             ########
             

@@ -52,10 +52,20 @@ def start_node(node_id, port):
                 #cursor.execute(message)
 
                 # abort using rollback() if needed, and send ABORT to main_partner
+                # cursor.commit() cursor.rollback()
+                #try cursor.execute(message):
                 
-                # send conn to node_partner (with transaction ID)
-                # send COMMIT to main_partner (with transaction ID)
+                    #if ready to commit then:
+                        #send COMMIT ready to main
 
-                #wait for response 
+                        #wait for response from main
+
+                        # commit or abort based on main response 
+                #catch:
+                    #send ABORT to main
+                    
+                #continue
                 ######
                 conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
+
+                #COMMIT or ABORT here
