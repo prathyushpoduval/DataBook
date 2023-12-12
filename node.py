@@ -37,15 +37,34 @@ def start_node(node_id, port):
 
     print(f"Node {node_id} started on port {port}")
 
-    
+    first = True
     while True:
         conn, addr = server.accept()
-
         with conn:
             data = conn.recv(1024)
             if data:
                 message = data.decode('utf-8')
 
+            if first == True: 
+                try:
+                    cursor.execute(message)
+                    conn.commit()
+                    send_message(1024, "COMMIT")
+                    first = False
+
+                except: 
+                    conn.rollback()
+                    send_message(1024, "ABORT")
+            
+            else:
+                if message = "DONE":
+                    first = True
+                 
+                else:
+                    cursor.execute(message)
+                    conn.commit()
+                 
+                
                 ######
                 # execute SQL commands
                 

@@ -69,8 +69,9 @@ def main():
             # unsure about user node list
             user_node_dict[user_node]=user_id
             timestamp=time.time()
-            # transaction returns user_node as [user_id, user_id], is this correct?
-            hops,user_node=trans.create_user(user_id,user_name,timestamp)
+            # CHECK THIS 
+            # transaction returns node as [user_id, user_id], is this correct?
+            hops,node=trans.create_user(user_id,user_name,timestamp)
             pass
         
         # create friendship
@@ -79,7 +80,7 @@ def main():
             user_id2=input("Enter user_id2: ")
             timestamp=time.time()
 
-            hops,user_node=trans.create_friendship(user_id1,user_id2,timestamp)
+            hops,node=trans.create_friendship(user_id1,user_id2,timestamp)
             pass
         
         # create post
@@ -89,7 +90,7 @@ def main():
             timestamp=time.time()
             content=input("Enter content: ")
             
-            hops,user_node=trans.create_post(post_id,user_id, timestamp, content):
+            hops,node=trans.create_post(post_id,user_id, timestamp, content):
             pass
         
         # like post
@@ -99,7 +100,7 @@ def main():
             post_id=input("Enter post_id: ")
             timestamp=time.time()
             
-            hops,user_node=trans.like_post(user_id,user_id_of_post, post_id, timestamp):
+            hops,node=trans.like_post(user_id,user_id_of_post, post_id, timestamp):
             pass
         
         # edit post
@@ -108,16 +109,16 @@ def main():
             post_id=input("Enter post_id: ")
             content=input("Enter content: ")
             
-            hops,user_node=trans.edit_post(user_id, post_id, content):
+            hops,node=trans.edit_post(user_id, post_id, content):
             pass
         
         # timeline query
         elif transaction == "edit_post":
             user_id=input("Enter user_id: ")
-            #node = ???
+            node=input("Enter node: ")
             #uncertain about node
             
-            hops,user_node=trans.timeline_query(user_id, node):
+            hops,node=trans.timeline_query(user_id, node):
             pass
         
         else:
@@ -135,29 +136,23 @@ def main():
             #
             #
             #########
-
-            #send PREPARE?
-            #if PREPARED, send hops
             
-            for a in hops:
-                #send hops to nodes
-                pass
-    
-            #Wait for response from nodes
+            # first hop
+            send_message(user_node, hops[0])
             time.sleep(2)
-            responses = []
-
-            # Send COMMIT or ABORT to nodes
+            # receive message from node
+            conn, addr = server.accept()
+                with conn:
+                    data = conn.recv(1024)
+            if data:
+                message = data.decode('utf-8')
             
-            # also check if responses < # of nodes
-            for response in responses:
-                if response != "ACK":
-                    #ABORT
+            if message == "COMMIT":
+                # rest of hops
+                for a in hops[1:]:
+                    send_message(user_node, a)
                     pass
-                else:
-                    #COMMIT
-                    pass
-                    
+   
             ########
             
     return nodes,processes
