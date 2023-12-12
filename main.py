@@ -25,7 +25,7 @@ def main():
     nodes = [2000, 2001, 2002]
     node_partners = [3000, 3001, 3002]
 
-    main_partner=4000
+    main_partner_port=4000
 
     processes = []
 
@@ -44,19 +44,21 @@ def main():
         send_message(nodes[i], str(port))
 
     time.sleep(2)
-    p=Process(target=main_partner, args=(nodes, node_partners))
+    p=Process(target=main_partner, args=(main_partner_port,nodes, node_partners))
     p.start()
     processes.append(p)
 
     # Print PIDs of all started processes
     for i, process in enumerate(processes):
-        print(f"Node {i} started with PID: {process.pid}")
+        print(f"Process {i} started with PID: {process.pid}")
 
     return nodes,processes
 
 
-def main_partner(nodes, node_partners):
-    
+def main_partner(port,nodes, node_partners):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('localhost', port))
+    server.listen()
     print("Main partner started")
 
 
