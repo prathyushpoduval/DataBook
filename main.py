@@ -37,20 +37,8 @@ def main():
         p.start()
         processes.append(p)
 
-    # more code for partners
     time.sleep(2)
-    for i, port in enumerate(node_partners):
-        p = Process(target=run_node_partner, args=(i,port))
-        p.start()
-        processes.append(p)
-        time.sleep(2)
-        #Send partner port to the node
-        send_message(nodes[i], str(port))
 
-    time.sleep(2)
-    p=Process(target=main_partner, args=(main_partner_port,nodes, node_partners))
-    p.start()
-    processes.append(p)
 
     # Print PIDs of all started processes
     for i, process in enumerate(processes):
@@ -165,13 +153,6 @@ def main():
             ########
             
     return nodes,processes
-
-
-def main_partner(port,nodes, node_partners):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('localhost', port))
-    server.listen()
-    print("Main partner started")
 
 
 if __name__ == "__main__":

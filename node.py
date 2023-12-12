@@ -37,19 +37,7 @@ def start_node(node_id, port):
 
     print(f"Node {node_id} started on port {port}")
 
-    partner_node=None
-    conn, addr = server.accept()
-    with conn:
-        data = conn.recv(1024)
-        if data:
-            message = data.decode('utf-8')
-            partner_node=int(message)
-            print(f"Node {node_id} received partner port: {message}")
-
-
-            send_message(partner_node,str(node_id))
-            print(f"Node {node_id} sent handshake to partner port {message}")
-
+    
     while True:
         conn, addr = server.accept()
 
@@ -71,34 +59,3 @@ def start_node(node_id, port):
                 #wait for response 
                 ######
                 conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
-
-
-
-def start_node_partner(node_id, port):
-
-
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('localhost', port))
-    server.listen()
-
-    print(f"Node Partner of {node_id} started on port {port}")
-
-    partner_node=None
-    conn, addr = server.accept()
-    with conn:
-        data = conn.recv(1024)
-        if data:
-            message = data.decode('utf-8')
-            main_node=int(message)
-            print(f"Partner Node of {node_id} received handshake from Node {message}")
-            
-
-
-    while True:
-        conn, addr = server.accept()
-
-        with conn:
-            data = conn.recv(1024)
-            if data:
-                message = data.decode('utf-8')
-                conn.sendall(f"Partner Node of {node_id} got your message: '{message}'".encode('utf-8'))
