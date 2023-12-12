@@ -1,7 +1,7 @@
 import socket
 import sqlite3
 
-
+NUM_NODE=3
 def init_db(name):
 
     database_name = f"{name}.db"
@@ -24,7 +24,7 @@ def init_db(name):
 
 if __name__ == "__main__":
 
-    for i in range(3):
+    for i in range(NUM_NODE):
         init_db(f"node_{i}")
 
     print("Database initialized.")
