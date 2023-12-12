@@ -6,7 +6,11 @@ import time
 def run_node(node_id, port):
     node.start_node(node_id, port)
 
+def run_node_partner( node_id, port):
+    node.start_node_partner(node_id,port)
+
 def send_message(port, message):
+
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(('localhost', port))
@@ -19,6 +23,7 @@ def send_message(port, message):
 
 def main():
     nodes = [2000, 2001, 2002]
+    node_partners = [3000, 3001, 3002]
     processes = []
 
     for i, port in enumerate(nodes):
@@ -26,11 +31,22 @@ def main():
         p.start()
         processes.append(p)
 
+    time.sleep(2)
+    for i, port in enumerate(node_partners):
+        p = Process(target=run_node_partner, args=(i,port))
+        p.start()
+        processes.append(p)
+        time.sleep(2)
+        #Send partner port to the node
+        send_message(nodes[i], str(port))
+
     # Print PIDs of all started processes
     for i, process in enumerate(processes):
         print(f"Node {i} started with PID: {process.pid}")
 
     return nodes,processes
+
+
 
 
 if __name__ == "__main__":
