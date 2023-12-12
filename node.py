@@ -11,7 +11,7 @@ def send_message(port, message):
     except ConnectionRefusedError:
         print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
 
-
+# Why is there a create tables for the node?
 def create_tables(conn):
     cursor = conn.cursor()
     # Define the SQL commands to create tables
@@ -28,6 +28,7 @@ def start_node(node_id, port):
     # Initialize the database for this node
     database_name = f"node_{node_id}.db"
     conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
     create_tables(conn)
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,13 +49,6 @@ def start_node(node_id, port):
 
             send_message(partner_node,str(node_id))
             print(f"Node {node_id} sent handshake to partner port {message}")
-
-    ##########
-    #Connect to the databse
-    #conn = sqlite3.connect(database_name)
-    #cursor = conn.cursor()
-
-    ##########
 
     while True:
         conn, addr = server.accept()
