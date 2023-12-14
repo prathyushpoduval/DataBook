@@ -18,9 +18,11 @@ def create_tables(conn):
     cursor = conn.cursor()
     # Define the SQL commands to create tables
     # Example: Create a table named 'example_table'
-    cursor.execute('''CREATE TABLE IF NOT EXISTS example_table (
-                      id INTEGER PRIMARY KEY,
-                      data TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Users (user_id TEXT, user_name TEXT, timestamp TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Friendship (user_id1 TEXT, user_id2 TEXT, timestamp TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Posts (post_id TEXT, user_id TEXT, timestamp TEXT, content TEXT, num_likes INTEGER)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS Likes (user_id TEXT, post_id TEXT, timestamp TEXT)''')
+
     # Add more table creation commands as needed
     # ...
     conn.commit()
@@ -61,6 +63,7 @@ def start_node(node_id, port,main_port):
                 except sqlite3.OperationalError:
                     print(f"Database locked. Trying again. Node at Port {node_id}\n")
                     print(f"Transaction: {hops}\n")
+                    
                     continue
             #print(f"Node {node_id} finished processing transaction, with response\n {response_list}\n")
             response_list=json.dumps(response_list)
