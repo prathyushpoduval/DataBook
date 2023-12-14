@@ -1,5 +1,7 @@
 import socket
 import sqlite3
+import json
+from utils import *
 
 def send_message(port, message):
     try:
@@ -23,7 +25,7 @@ def create_tables(conn):
     # ...
     conn.commit()
 
-def start_node(node_id, port):
+def start_node(node_id, port,main_port):
 
     # Initialize the database for this node
     database_name = f"node_{node_id}.db"
@@ -31,60 +33,36 @@ def start_node(node_id, port):
     cursor = conn.cursor()
     create_tables(conn)
 
+
+    print(f"Node {node_id} recieved main port {main_port}")
+
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('localhost', port))
     server.listen()
 
     print(f"Node {node_id} started on port {port}")
 
-    first = True
     while True:
-        conn, addr = server.accept()
-        with conn:
-            data = conn.recv(1024)
-            if data:
-                message = data.decode('utf-8')
+        conn_main, addr = server.accept()
+        with conn_main:
+            data = conn_main.recv(1024)
+            hops=json.loads(data)
 
-            if first == True: 
+            response_list=[]
+            while True:
                 try:
-                    cursor.execute(message)
+                    response_list=[]
+                    for hop in hops:
+                        cursor.execute(hop)
+                        response_list.append(cursor.fetchall())
+
                     conn.commit()
-                    send_message(1024, "COMMIT")
-                    first = False
+                    break
+                except sqlite3.OperationalError:
+                    print(f"Database locked. Trying again. Node at Port {node_id}")
+                    continue
+            print(f"Node {node_id} finished processing transaction, with response\n {response_list}")
+            response_list=json.dumps(response_list)
+            #print(main_port)
+            send_message(main_port,response_list)
 
-                except: 
-                    conn.rollback()
-                    send_message(1024, "ABORT")
-            
-            else:
-                if message = "DONE":
-                    first = True
-                 
-                else:
-                    cursor.execute(message)
-                    conn.commit()
-                 
-                
-                ######
-                # execute SQL commands
-                
-                #cursor.execute(message)
-
-                # abort using rollback() if needed, and send ABORT to main_partner
-                # cursor.commit() cursor.rollback()
-                #try cursor.execute(message):
-                
-                    #if ready to commit then:
-                        #send COMMIT ready to main
-
-                        #wait for response from main
-
-                        # commit or abort based on main response 
-                #catch:
-                    #send ABORT to main
-                    
-                #continue
-                ######
-                conn.sendall(f"Node {node_id} got your message: '{message}'".encode('utf-8'))
-
-                #COMMIT or ABORT here

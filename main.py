@@ -3,35 +3,27 @@ import node
 import socket
 import time
 import transactions_sql as trans
+import numpy as np
+import json
+from utils import *
 
 NUM_NODE=3
 
 
-def run_node(node_id, port):
-    node.start_node(node_id, port)
 
-def run_node_partner(node_id, port):
-    node.start_node_partner(node_id,port)
-
-def send_message(port, message):
-
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(('localhost', port))
-            s.sendall(message.encode('utf-8'))
-            #response = s.recv(1024)
-            #print(f"Response from node: {response.decode('utf-8')}")
-    except ConnectionRefusedError:
-        print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
-
+def run_node(node_id, port,main_port):
+    node.start_node(node_id, port,main_port)
 
 def main():
-    nodes = [2000+i for i in range(NUM_NODE)]
+
+    main_port=2900
+
+    node_ports= [2100+i for i in range(NUM_NODE)]
     
     processes = []
 
-    for i, port in enumerate(nodes):
-        p = Process(target=run_node, args=(i, port))
+    for i, port in enumerate(node_ports):
+        p = Process(target=run_node, args=(i, port,main_port))
         p.start()
         processes.append(p)
 
@@ -42,9 +34,24 @@ def main():
     for i, process in enumerate(processes):
         print(f"Process {i} started with PID: {process.pid}")
 
+   
+    
     # ASKS FOR TRANSACTIONS
     #FILL 
     user_node_dict={}
+
+    #Get User dict
+    for i in range(NUM_NODE):
+        transaction=f"SELECT user_id FROM Users"
+        resp=send_transaction(node_ports[i],[transaction],main_port,True)
+        resp=json.loads(resp)
+        print(resp)
+        resp=resp[0]
+        for j in resp:
+            user_node_dict[j[0]]=i
+
+    print("User Node dict loaded....")
+        
 
     #COMPLETE
 
@@ -66,13 +73,26 @@ def main():
             user_id=input("Enter user_id: ")
             user_name=input("Enter user_name: ")
             user_node=input("Enter user_node: ")
-            # unsure about user node list
+
             user_node_dict[user_node]=user_id
             timestamp=time.time()
-            # CHECK THIS 
-            # transaction returns node as [user_id, user_id], is this correct?
+            
+            
             hops,node=trans.create_user(user_id,user_name,timestamp)
-            pass
+            node=[node_ports[user_node_dict[i]] for i in node]
+
+            
+
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)!=0:
+                print("User already exists, Aborted")
+                continue
+            else:
+                print("User created")
+            
+
+
         
         # create friendship
         elif transaction == "create_friendship":
@@ -81,7 +101,17 @@ def main():
             timestamp=time.time()
 
             hops,node=trans.create_friendship(user_id1,user_id2,timestamp)
-            pass
+
+            node=[node_ports[user_node_dict[i]] for i in node]
+
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)!=0:
+                print("Friendship already exists, Aborted")
+                continue
+            else:
+                print("Friendship created")
+        
         
         # create post
         elif transaction == "create_post":
@@ -90,8 +120,17 @@ def main():
             timestamp=time.time()
             content=input("Enter content: ")
             
-            hops,node=trans.create_post(post_id,user_id, timestamp, content):
-            pass
+            hops,node=trans.create_post(post_id,user_id, timestamp, content)
+            
+            node=[node_ports[user_node_dict[i]] for i in node]
+
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)!=0:
+                print("Post_id already exists, Aborted")
+                continue
+            else:
+                print("Post created")
         
         # like post
         elif transaction == "like_post":
@@ -100,8 +139,17 @@ def main():
             post_id=input("Enter post_id: ")
             timestamp=time.time()
             
-            hops,node=trans.like_post(user_id,user_id_of_post, post_id, timestamp):
-            pass
+            hops,node=trans.like_post(user_id,post_user_id, post_id, timestamp)
+
+            node=[node_ports[user_node_dict[i]] for i in node]
+            
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)==0:
+                print("Post_id does not exist, Aborted")
+                continue
+            else:
+                print("Like created")
         
         # edit post
         elif transaction == "edit_post":
@@ -109,8 +157,17 @@ def main():
             post_id=input("Enter post_id: ")
             content=input("Enter content: ")
             
-            hops,node=trans.edit_post(user_id, post_id, content):
-            pass
+            hops,node=trans.edit_post(user_id, post_id, content)
+
+            node=[node_ports[user_node_dict[i]] for i in node]
+            
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)==0:
+                print("Post_id does not exist, Aborted")
+                continue
+            else:
+                print("Post edited")
         
         # timeline query
         elif transaction == "edit_post":
@@ -118,44 +175,37 @@ def main():
             node=input("Enter node: ")
             #uncertain about node
             
-            hops,node=trans.timeline_query(user_id, node):
-            pass
-        
+            hops=trans.timeline_query(user_id, node)
+
+
+            resp,hops,node=perform_first_hop(hops,[user_node_dict[user_id],0])
+
+            friendlist=[node_ports[user_node_dict[i[0]]] for i in resp]
+            hoplist=[hops[-1] for i in resp]
+
+            hops,node=compress_hops_nodes(hoplist,friendlist)
+            
+        elif transaction == "print_all_tables":
+            hops=trans.print_all_tables()
+            node=list(range(NUM_NODE))
+            node=[node_ports[i] for i in node]
+
+
+            hop_list=[hops for i in range(NUM_NODE)]
+            hops=hop_list
+
+
         else:
             print("Invalid transaction.")
-            tranID+=-1
         
         ########  
 
+        for h,n in zip(hops,node):
+            send_transaction(n,h,main_port)
+            print(f"Hop Executed on Node {n}:\n")
 
-        if hops:  
-
-            ########
-            #1. Convert user_id to node_id to node_port
-            #2. Split hops so that all the hops for a node are sent together
-            #
-            #
-            #########
             
-            # first hop
-            send_message(user_node, hops[0])
-            time.sleep(2)
-            # receive message from node
-            conn, addr = server.accept()
-                with conn:
-                    data = conn.recv(1024)
-            if data:
-                message = data.decode('utf-8')
-            
-            if message == "COMMIT":
-                # rest of hops
-                for a in hops[1:]:
-                    send_message(user_node, a)
-                    pass
-   
-            ########
-            
-    return nodes,processes
+    return node_ports,processes
 
 
 if __name__ == "__main__":
