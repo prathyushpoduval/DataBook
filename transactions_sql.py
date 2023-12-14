@@ -13,7 +13,7 @@ def create_user(user_id, user_name, timestamp):
     return [a0,a1,a2],nodes
 
 def create_friendship(user_id1, user_id2, timestamp):
-    a0=f"SELECT user_id FROM Friendship WHERE user_id1 = '{user_id1}' AND user_id2 = '{user_id2}'"
+    a0=f"SELECT user_id1 FROM Friendship WHERE user_id1 = '{user_id1}' AND user_id2 = '{user_id2}'"
     a1= f"INSERT INTO Friendship VALUES ('{user_id1}', '{user_id2}', '{timestamp}')"
     a2= f"INSERT INTO Friendship VALUES ('{user_id2}', '{user_id1}', '{timestamp}')"
 

@@ -60,6 +60,7 @@ def start_node(node_id, port,main_port):
                     break
                 except sqlite3.OperationalError:
                     print(f"Database locked. Trying again. Node at Port {node_id}\n")
+                    print(f"Transaction: {hops}\n")
                     continue
             #print(f"Node {node_id} finished processing transaction, with response\n {response_list}\n")
             response_list=json.dumps(response_list)
