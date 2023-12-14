@@ -76,7 +76,6 @@ def main():
             user_name=input("Enter user_name: ")
             user_node=int(input("Enter user_node: "))
 
-            #user_node_dict[user_node]=user_id
             user_node_dict[user_id]=user_node
             timestamp=time.time()
             
@@ -101,8 +100,11 @@ def main():
         
         # create friendship
         elif transaction == "create_friendship":
-            user_id1=input("Enter user_id1: ")
-            user_id2=input("Enter user_id2: ")
+            user_id1=int(input("Enter user_id1: "))
+            user_id2=int(input("Enter user_id2: "))
+            user_node=int(input("Enter user_node: "))
+
+            user_node_dict[user_id]=user_node
             timestamp=time.time()
 
             hops,node=trans.create_friendship(user_id1,user_id2,timestamp)
@@ -120,8 +122,11 @@ def main():
         
         # create post
         elif transaction == "create_post":
-            post_id=input("Enter post_id: ")
-            user_id=input("Enter user_id: ")
+            post_id=int(input("Enter post_id: "))
+            user_id=int(input("Enter user_id: "))
+            user_node=int(input("Enter user_node: "))
+
+            user_node_dict[user_id]=user_node
             timestamp=time.time()
             content=input("Enter content: ")
             
@@ -139,9 +144,12 @@ def main():
         
         # like post
         elif transaction == "like_post":
-            user_id=input("Enter user_id: ")
-            post_user_id=input("Enter user_id_of_post: ")
-            post_id=input("Enter post_id: ")
+            user_id=int(input("Enter user_id: "))
+            post_user_id=int(input("Enter user_id_of_post: "))
+            post_id=int(input("Enter post_id: "))
+            user_node=int(input("Enter user_node: "))
+
+            user_node_dict[user_id]=user_node
             timestamp=time.time()
             
             hops,node=trans.like_post(user_id,post_user_id, post_id, timestamp)
@@ -158,9 +166,13 @@ def main():
         
         # edit post
         elif transaction == "edit_post":
-            user_id=input("Enter user_id: ")
-            post_id=input("Enter post_id: ")
+            user_id=int(input("Enter user_id: "))
+            post_id=int(input("Enter post_id: "))
+            user_node=int(input("Enter user_node: "))
+
+            user_node_dict[user_id]=user_node
             content=input("Enter content: ")
+            
             
             hops,node=trans.edit_post(user_id, post_id, content)
 
@@ -174,10 +186,11 @@ def main():
             else:
                 print("Post edited")
         
-        # timeline query
+        # timeline query 
+        # THIS DOES NOT MATCH THE TRANSACTION DEFINITION
         elif transaction == "timeline":
-            user_id=input("Enter user_id: ")
-            node=input("Enter node: ")
+            user_id=int(input("Enter user_id: "))
+            node=int(input("Enter node: "))
             #uncertain about node
             
             hops=trans.timeline_query(user_id, node)
@@ -202,7 +215,6 @@ def main():
             hops=hop_list
 
             response_req=True
-
 
         else:
             print("Invalid transaction.")

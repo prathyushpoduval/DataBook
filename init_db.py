@@ -9,6 +9,12 @@ def init_db(name):
     cursor = conn.cursor()
     # Define the SQL commands to create tables
     # Example: Create a table named 'example_table'
+
+    cursor.execute('DROP TABLE Users')
+    cursor.execute('DROP TABLE Friendship')
+    cursor.execute('DROP TABLE Posts')
+    cursor.execute('DROP TABLE Likes')
+    
     cursor.execute('''CREATE TABLE IF NOT EXISTS Users (
                       user_id TEXT PRIMARY KEY, user_name TEXT, timestamp TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS Friendship (
@@ -19,6 +25,7 @@ def init_db(name):
                      user_id TEXT, post_id INTEGER, timestamp TEXT, PRIMARY KEY (user_id, post_id))''')
     # Add more table creation commands as needed
     # ...
+    
     conn.commit()
 
     #conn.rollback()
