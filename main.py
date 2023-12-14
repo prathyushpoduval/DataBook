@@ -70,15 +70,18 @@ def main():
         
         # create user
         if transaction == "create_user":
-            user_id=input("Enter user_id: ")
+            user_id=int(input("Enter user_id: "))
             user_name=input("Enter user_name: ")
-            user_node=input("Enter user_node: ")
+            user_node=int(input("Enter user_node: "))
 
-            user_node_dict[user_node]=user_id
+            #user_node_dict[user_node]=user_id
+            user_node_dict[user_id]=user_node
             timestamp=time.time()
             
             
             hops,node=trans.create_user(user_id,user_name,timestamp)
+            print(node)
+            print(user_node_dict)
             node=[node_ports[user_node_dict[i]] for i in node]
 
             
@@ -170,7 +173,7 @@ def main():
                 print("Post edited")
         
         # timeline query
-        elif transaction == "edit_post":
+        elif transaction == "timeline":
             user_id=input("Enter user_id: ")
             node=input("Enter node: ")
             #uncertain about node
@@ -201,6 +204,9 @@ def main():
         ########  
 
         for h,n in zip(hops,node):
+            # Objects of type ndarray are not JSON serializable
+            h = h.tolist()
+            n = n.tolist()
             send_transaction(n,h,main_port)
             print(f"Hop Executed on Node {n}:\n")
 
