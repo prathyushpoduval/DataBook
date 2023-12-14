@@ -67,6 +67,8 @@ def main():
             break
 
         tranID+=1
+
+        response_req=False
         
         # create user
         if transaction == "create_user":
@@ -187,6 +189,8 @@ def main():
             hoplist=[hops[-1] for i in resp]
 
             hops,node=compress_hops_nodes(hoplist,friendlist)
+
+            response_req=True
             
         elif transaction == "print_all_tables":
             hops=trans.print_all_tables()
@@ -197,17 +201,24 @@ def main():
             hop_list=[hops for i in range(NUM_NODE)]
             hops=hop_list
 
+            response_req=True
+
 
         else:
             print("Invalid transaction.")
+            continue
         
         ########  
 
         for h,n in zip(hops,node):
             # Objects of type ndarray are not JSON serializable
-            h = h.tolist()
-            n = n.tolist()
-            send_transaction(n,h,main_port)
+            h = list(h)
+            if response_req:
+                resp=send_transaction(n,h,main_port,True)
+                resp=json.loads(resp)
+                print(resp)
+            else:
+                send_transaction(n,h,main_port)
             print(f"Hop Executed on Node {n}:\n")
 
             

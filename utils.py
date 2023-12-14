@@ -2,33 +2,35 @@ import socket
 import json
 import numpy as np
 
-def send_message(port, message):
+
+def check_port( port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect(('localhost', port))
+            return True
+        except ConnectionRefusedError:
+            return False
+        
+def send_message(port, message,response_req=False):
 
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(('localhost', port))
             s.sendall(message.encode('utf-8'))
+
+            if response_req:
+                response = s.recv(1024)
+                return response
             
     except ConnectionRefusedError:
         print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
 
-def receive_message(port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('localhost', port))
-        s.listen()
-        conn, addr = s.accept()
-        with conn:
-            data = conn.recv(1024)
-            if data:
-                message = data.decode('utf-8')
-                return message
+
 
 def send_transaction(node_id, transactions, port,response_req=False):
     message = json.dumps(transactions)
-    send_message(node_id, message)
-    if response_req:
-        response = receive_message(port)
-        return response
+    return send_message(node_id, message,response_req=response_req)
+ 
 
 
             

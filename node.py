@@ -59,10 +59,10 @@ def start_node(node_id, port,main_port):
                     conn.commit()
                     break
                 except sqlite3.OperationalError:
-                    print(f"Database locked. Trying again. Node at Port {node_id}")
+                    print(f"Database locked. Trying again. Node at Port {node_id}\n")
                     continue
-            print(f"Node {node_id} finished processing transaction, with response\n {response_list}")
+            #print(f"Node {node_id} finished processing transaction, with response\n {response_list}\n")
             response_list=json.dumps(response_list)
             #print(main_port)
-            send_message(main_port,response_list)
+            conn_main.sendall(response_list.encode('utf-8'))
 
