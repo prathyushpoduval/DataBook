@@ -209,7 +209,26 @@ def main():
             hops=hop_list
 
             response_req=True
+        
+        elif transaction == "remove_user":
+            user_id=input("Enter user_id: ")
+            user_node=int(input("Enter user_node: "))
 
+            user_node_dict[user_id]=user_node     
+   
+            print
+            hops,node=trans.remove_user(user_id)
+            node=[node_ports[user_node_dict[i]] for i in node]
+
+            
+            resp,hops,node=perform_first_hop(hops,node,main_port)
+
+            if len(resp)!=0:
+                print("User does not exist, not deleted")
+                continue
+            else:
+                print("User deleted")
+                
         else:
             print("Invalid transaction.")
             continue

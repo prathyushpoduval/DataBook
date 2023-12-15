@@ -7,7 +7,7 @@ def create_user(user_id, user_name, timestamp):
     #Finds if user_id exists
     a0= f"SELECT user_id FROM Users WHERE user_id = '{user_id}'"
     a1= f"INSERT INTO Users VALUES ('{user_id}', '{user_name}', '{timestamp}')"
-    a2= f"INSERT INTO Posts VALUES ('{user_id}', '{user_id}0','{timestamp}', '{user_name} is now on DataBook!',0)"
+    a2= f"INSERT INTO Posts VALUES ('{user_id}', '{user_id}','{timestamp}', '{user_name} is now on DataBook!',0)"
 
     nodes=[user_id,user_id,user_id]
     return [a0,a1,a2],nodes
@@ -55,3 +55,12 @@ def print_all_tables():
     a2= f"SELECT * FROM Posts"
     a3= f"SELECT * FROM Likes"
     return [a0,a1,a2,a3]
+
+def remove_user(user_id):
+    a0= f"DELETE FROM Users WHERE user_id = '{user_id}'"
+    a1= f"DELETE FROM Posts WHERE user_id = '{user_id}'"
+    a2= f"DELETE FROM Friendship WHERE user_id1 = '{user_id}'"
+    a3= f"DELETE FROM Friendship WHERE user_id2 = '{user_id}'"
+    
+    nodes=[user_id,user_id,user_id,user_id]
+    return [a0,a1,a2,a3],nodes
