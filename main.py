@@ -95,7 +95,8 @@ def main():
             else:
                 print("User created")
             
-
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
 
         
         # create friendship
@@ -116,7 +117,9 @@ def main():
                 continue
             else:
                 print("Friendship created")
-        
+            
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
         
         # create post
         elif transaction == "create_post":
@@ -138,6 +141,9 @@ def main():
             else:
                 print("Post created")
         
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
+            
         # like post
         elif transaction == "like_post":
             user_id=input("Enter user_id: ")
@@ -157,7 +163,10 @@ def main():
                 continue
             else:
                 print("Like created")
-        
+                
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
+            
         # edit post
         elif transaction == "edit_post":
             user_id=input("Enter user_id: ")
@@ -167,6 +176,7 @@ def main():
             user_node_dict[user_id]=user_node
             content=input("Enter content: ")
             
+            timestamp=time.time()
             
             hops,node=trans.edit_post(user_id, post_id, content)
 
@@ -179,6 +189,9 @@ def main():
                 continue
             else:
                 print("Post edited")
+                
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
         
         # timeline query 
         # THIS DOES NOT MATCH THE TRANSACTION DEFINITION
@@ -186,6 +199,8 @@ def main():
             user_id=input("Enter user_id: ")
             node=input("Enter node: ")
             #uncertain about node
+            
+            timestamp=time.time()
             
             hops=trans.timeline_query(user_id, node)
 
@@ -198,6 +213,9 @@ def main():
             hops,node=compress_hops_nodes(hoplist,friendlist)
 
             response_req=True
+            
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
             
         elif transaction == "print_all_tables":
             hops=trans.print_all_tables()
@@ -214,9 +232,10 @@ def main():
             user_id=input("Enter user_id: ")
             user_node=int(input("Enter user_node: "))
 
+            timestamp = time.time()
+            
             user_node_dict[user_id]=user_node     
-   
-            print
+    
             hops,node=trans.remove_user(user_id)
             node=[node_ports[user_node_dict[i]] for i in node]
 
@@ -228,6 +247,9 @@ def main():
                 continue
             else:
                 print("User deleted")
+                
+            latency = time.time()-timestamp
+            print("Latency: " + str(latency) + " ms")
                 
         else:
             print("Invalid transaction.")
