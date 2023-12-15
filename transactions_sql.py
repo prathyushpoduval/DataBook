@@ -37,7 +37,7 @@ def like_post(user_id, user_id_of_post,post_id, timestamp):
     return [a0,a1,a2],nodes
 
 def edit_post(user_id, post_id, content):
-    a0=f"SELECT post_id FROM Posts WHERE post_id = {post_id}"
+    a0= f"SELECT post_id FROM Posts WHERE post_id = {post_id}"
     a1= f"UPDATE Posts SET content = '{content}' WHERE post_id = {post_id}"
 
     nodes=[user_id,user_id]
@@ -61,6 +61,7 @@ def remove_user(user_id):
     a1= f"DELETE FROM Posts WHERE user_id = '{user_id}'"
     a2= f"DELETE FROM Friendship WHERE user_id1 = '{user_id}'"
     a3= f"DELETE FROM Friendship WHERE user_id2 = '{user_id}'"
+    a4= f"DELETE FROM Likes WHERE user_id = '{user_id}'"
     
-    nodes=[user_id,user_id,user_id,user_id]
-    return [a0,a1,a2,a3],nodes
+    nodes=[user_id,user_id,user_id,user_id,user_id]
+    return [a0,a1,a2,a3,a4],nodes

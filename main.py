@@ -171,7 +171,7 @@ def main():
         elif transaction == "edit_post":
             user_id=input("Enter user_id: ")
             post_id=input("Enter post_id: ")
-            user_node=input("Enter user_node: ")
+            user_node=int(input("Enter user_node: "))
 
             user_node_dict[user_id]=user_node
             content=input("Enter content: ")
