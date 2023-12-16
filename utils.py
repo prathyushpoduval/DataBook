@@ -23,7 +23,9 @@ def send_message(port, message,response_req=False):
                 return response
             
     except ConnectionRefusedError:
-        print(f"Failed to connect to node on port {port}. Make sure the node server is running.")
+        #print(f"Connection refused at port {port}")
+        return -1
+
 
 
 

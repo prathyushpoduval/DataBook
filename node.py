@@ -51,6 +51,14 @@ def start_node(node_id, port,main_port):
     while True:
         conn_main, addr = server.accept()
         with conn_main:
+            data=conn_main.recv(1024)
+            data=data.decode('utf-8')
+            if data=="start":
+                break
+
+    while True:
+        conn_main, addr = server.accept()
+        with conn_main:
 
             data = conn_main.recv(1024)
             hops=json.loads(data)

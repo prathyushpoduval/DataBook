@@ -10,6 +10,7 @@ import random
 import os
 import signal
 from subprocess import Popen, PIPE
+import pandas as pd
 
 
 NUM_NODE=3
@@ -222,7 +223,7 @@ def make_transaction(transaction, user_node_dict,node_ports,first_hop_only=False
             #print(f"Hop Executed on Node {n}:\n")
 
 
-def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
+def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user", debug=False,user_node_dict=None,first_hop_only=False,send=True):
 
     main_port=2900
 
@@ -237,31 +238,41 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
         p.start()
         processes.append(p)
         
+    break_while=False
+    while not break_while:
+        break_while=True
+        time.sleep(0.1)
+        for port in node_ports:
+            if send_message(port,"test")==-1:
+                break_while = False
 
-    time.sleep(2)
+    for port in node_ports:
+        send_message(port,"start")
 
+    print("Ports started....")
 
     # Print PIDs of all started processes
-    for i, process in enumerate(processes):
-        print(f"Process {i} started with PID: {process.pid}")
+    if debug:
+        for i, process in enumerate(processes):
+            print(f"Process {i} started with PID: {process.pid}")
 
    
     
     # ASKS FOR TRANSACTIONS
     #FILL 
-    user_node_dict={}
+    #user_node_dict={}
 
     #Get User dict
-    for i in range(NUM_NODE):
-        transaction=f"SELECT user_id FROM Users"
-        resp=send_transaction(node_ports[i],[transaction],True)
-        resp=json.loads(resp)
-        #print(resp)
-        resp=resp[0]
-        for j in resp:
-            user_node_dict[j[0]]=i
+    #for i in range(NUM_NODE):
+    #    transaction=f"SELECT user_id FROM Users"
+    #    resp=send_transaction(node_ports[i],[transaction],True)
+    #    resp=json.loads(resp)
+    #    #print(resp)
+    #    resp=resp[0]
+    #    for j in resp:
+    #        user_node_dict[j[0]]=i
 
-    print("User Node dict loaded....")
+    #print("User Node dict loaded....")
         
 
     #COMPLETE
@@ -272,9 +283,13 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
     test = True
 
     # Create 100 dummy users on randomNodes 
-    if test == True:
+    #check if template_{DB_SIZE}_i.db exists, and copy to node_i.db
+    #if not, create template_{DB_SIZE}_i.db using dummy
 
 
+    if test == True and user_node_dict==None:
+
+        user_node_dict={}
         for x in range(DB_SIZE):
             timestamp=time.time()
 
@@ -285,9 +300,10 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
             make_transaction("create_user",user_node_dict,node_ports,**kwargs)
                 
-        test = False
-        print("DUMMIES USERS CREATED")
-        print("DUMMY POST CREATED")
+
+        if debug:
+            print("DUMMIES USERS CREATED")
+            print("DUMMY POST CREATED")
 
         for x in range(DB_SIZE//2):
             #Insert random friendship 
@@ -299,9 +315,10 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
             kwargs={"user_id1":user1,"user_id2":user2}
 
-            make_transaction("create_friendship",user_node_dict,node_ports,**kwargs)
+            make_transaction("create_friendship",user_node_dict,node_ports, **kwargs)
 
-        print("DUMMY FRIENDSHIPS CREATED")
+        if debug:
+            print("DUMMY FRIENDSHIPS CREATED")
 
         for x in range(DB_SIZE):
             #random likes being inserted
@@ -320,8 +337,8 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
 
 
+    test=True 
 
-    
     current_user_id_count=DB_SIZE+1
 
     time_start=time.time()
@@ -335,7 +352,7 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
             node=random.randint(0,NUM_NODE-1)
             user_name=f"latency_{current_user_id_count}_{node}"
             kwargs={"user_id":user_id,"user_name":user_name,"user_node":node}
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
         
         elif transaction=="create_friendship":
             user1=random.choice(list(user_node_dict.keys()))
@@ -345,14 +362,14 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
             kwargs={"user_id1":user1,"user_id2":user2}
 
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
 
         elif transaction=="create_post":
             user_id=random.choice(list(user_node_dict.keys()))
             content=f"latency_{i}_{user_id}"
             post_id=f"post_{i}_{user_id}"
             kwargs={"post_id":post_id,"user_id":user_id,"content":content}
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
 
         elif transaction=="like_post":
             user_id=random.choice(list(user_node_dict.keys()))
@@ -363,24 +380,24 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
             kwargs={"user_id":user_id,"post_user_id":post_user_id,"post_id":post_id}
 
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
 
         elif transaction=="edit_post":
             user_id=random.choice(list(user_node_dict.keys()))
             post_id=f'post_{i}_{user_id}'
             content=f"edited_latency_{i}_{user_id}"
             kwargs={"user_id":user_id,"post_id":post_id,"content":content}
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
 
         elif transaction=="timeline":
             user_id=random.choice(list(user_node_dict.keys()))
             kwargs={"user_id":user_id}
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
 
         elif transaction=="remove_user":
             user_id=random.choice(list(user_node_dict.keys()))
             kwargs={"user_id":user_id}
-            make_transaction(transaction,user_node_dict,node_ports,**kwargs)
+            make_transaction(transaction,user_node_dict,node_ports,first_hop_only=first_hop_only,send=send,**kwargs)
             del user_node_dict[user_id]
 
     time_end=time.time()
@@ -390,17 +407,27 @@ def main(DB_SIZE=100, num_itr=100,transaction_to_run="create_user"):
 
 
 
+
         
             
-    return node_ports,processes
+    return user_node_dict,node_ports,processes,(time_end-time_start)/num_itr
 
 
 if __name__ == "__main__":
     
     transaction_list=["create_user","create_friendship","create_post","like_post","edit_post","timeline","remove_user"]
+    database_length=[100,1000,10000]
+    num_itr=50
+
+    
 
 
-    for transaction in transaction_list:
+    time_first_hop=np.zeros((len(database_length),len(transaction_list)))
+    print("Running first hop transactions\n\n\n\n")
+    for db_size in database_length:
+
+        user_node_dict=None
+
         #delete *.db files
         for i in range(NUM_NODE):
             database_name = f"node_{i}.db"
@@ -408,15 +435,74 @@ if __name__ == "__main__":
                 os.remove(database_name)
             except OSError:
                 pass
-        print(f"Running {transaction} transactions")
-        node_ports,processes=main(DB_SIZE=1000, num_itr=500,transaction_to_run=transaction)
+        for transaction in transaction_list:
+            print(f"Running {transaction} transactions")
+            user_node_dict,node_ports,processes,latency=main(DB_SIZE=db_size, num_itr=num_itr,transaction_to_run=transaction,first_hop_only=True,user_node_dict=user_node_dict)
 
-        
-        
-        for process in processes:
-            process.terminate()
-            process.join()
+            time_first_hop[database_length.index(db_size),transaction_list.index(transaction)]=latency
+
+            for process in processes:
+                process.terminate()
+                process.join()
 
      
-        # Increase this time if the nodes are not ready
-        #time.sleep(3)
+    df=pd.DataFrame(time_first_hop,index=database_length,columns=transaction_list)
+    df.to_csv("time_first_hop.csv")
+
+    time_constant=np.zeros((len(database_length),len(transaction_list)))
+
+    print("Running constant transactions\n\n\n\n")
+    for db_size in database_length:
+
+        user_node_dict=None
+
+        #delete *.db files
+        for i in range(NUM_NODE):
+            database_name = f"node_{i}.db"
+            try:
+                os.remove(database_name)
+            except OSError:
+                pass
+        for transaction in transaction_list:
+            print(f"Running {transaction} transactions")
+            user_node_dict,node_ports,processes,latency=main(DB_SIZE=db_size, num_itr=num_itr,transaction_to_run=transaction,send=False,user_node_dict=user_node_dict)
+
+            time_constant[database_length.index(db_size),transaction_list.index(transaction)]=latency
+
+            for process in processes:
+                process.terminate()
+                process.join()
+    
+    df=pd.DataFrame(time_constant,index=database_length,columns=transaction_list)
+    df.to_csv("time_constant.csv")
+
+
+
+    time_total_arr=np.zeros((len(database_length),len(transaction_list)))
+    print("Running total transactions\n\n\n\n")
+
+    
+    for db_size in database_length:
+
+        user_node_dict=None
+
+        #delete *.db files
+        for i in range(NUM_NODE):
+            database_name = f"node_{i}.db"
+            try:
+                os.remove(database_name)
+            except OSError:
+                pass
+        for transaction in transaction_list:
+            
+            print(f"\n\nRunning {transaction} transactions")
+            user_node_dict,node_ports,processes,latency=main(DB_SIZE=db_size, num_itr=num_itr,transaction_to_run=transaction,user_node_dict=user_node_dict)
+
+            time_total_arr[database_length.index(db_size),transaction_list.index(transaction)]=latency
+
+            for process in processes:
+                process.terminate()
+                process.join()
+
+    df=pd.DataFrame(time_total_arr,index=database_length,columns=transaction_list)
+    df.to_csv("time_total.csv")
