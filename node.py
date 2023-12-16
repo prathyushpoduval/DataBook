@@ -38,7 +38,11 @@ def start_node(node_id, port,main_port):
 
     print(f"Node {node_id} recieved main port {main_port}")
 
+
+
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(('localhost', port))
     server.listen()
 
@@ -47,8 +51,14 @@ def start_node(node_id, port,main_port):
     while True:
         conn_main, addr = server.accept()
         with conn_main:
+
             data = conn_main.recv(1024)
             hops=json.loads(data)
+
+            if hops=="exit":
+                print(f"Exiting node {node_id}")
+                conn_main.close()
+                break
 
             response_list=[]
             while True:
@@ -69,4 +79,8 @@ def start_node(node_id, port,main_port):
             response_list=json.dumps(response_list)
             #print(main_port)
             conn_main.sendall(response_list.encode('utf-8'))
+
+    server.shutdown(socket.SHUT_RDWR)
+    server.close()
+    
 

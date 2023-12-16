@@ -43,7 +43,7 @@ def main():
     #Get User dict
     for i in range(NUM_NODE):
         transaction=f"SELECT user_id FROM Users"
-        resp=send_transaction(node_ports[i],[transaction],main_port,True)
+        resp=send_transaction(node_ports[i],[transaction],True)
         resp=json.loads(resp)
         print(resp)
         resp=resp[0]
@@ -87,7 +87,7 @@ def main():
 
             
 
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)!=0:
                 print("User already exists, Aborted")
@@ -110,7 +110,7 @@ def main():
 
             node=[node_ports[user_node_dict[i]] for i in node]
 
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)!=0:
                 print("Friendship already exists, Aborted")
@@ -133,7 +133,7 @@ def main():
             
             node=[node_ports[user_node_dict[i]] for i in node]
 
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)!=0:
                 print("Post_id already exists, Aborted")
@@ -156,7 +156,7 @@ def main():
 
             node=[node_ports[user_node_dict[i]] for i in node]
             
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)==0:
                 print("Post_id does not exist, Aborted")
@@ -182,7 +182,7 @@ def main():
 
             node=[node_ports[user_node_dict[i]] for i in node]
             
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)==0:
                 print("Post_id does not exist, Aborted")
@@ -240,7 +240,7 @@ def main():
             node=[node_ports[user_node_dict[i]] for i in node]
 
             
-            resp,hops,node=perform_first_hop(hops,node,main_port)
+            resp,hops,node=perform_first_hop(hops,node)
 
             if len(resp)!=0:
                 print("User does not exist, not deleted")
@@ -261,11 +261,11 @@ def main():
             # Objects of type ndarray are not JSON serializable
             h = list(h)
             if response_req:
-                resp=send_transaction(n,h,main_port,True)
+                resp=send_transaction(n,h,True)
                 resp=json.loads(resp)
                 print(resp)
             else:
-                send_transaction(n,h,main_port)
+                send_transaction(n,h)
             print(f"Hop Executed on Node {n}:\n")
 
             

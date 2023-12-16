@@ -19,7 +19,7 @@ def send_message(port, message,response_req=False):
             s.sendall(message.encode('utf-8'))
 
             if response_req:
-                response = s.recv(1024)
+                response = s.recv(102400)
                 return response
             
     except ConnectionRefusedError:
@@ -27,7 +27,7 @@ def send_message(port, message,response_req=False):
 
 
 
-def send_transaction(node_id, transactions, port,response_req=False):
+def send_transaction(node_id, transactions,response_req=False):
     message = json.dumps(transactions)
     return send_message(node_id, message,response_req=response_req)
  
@@ -45,14 +45,24 @@ def compress_hops_nodes(hops,nodes):
     return hop_collated,node_unique_list
 
 
-def perform_first_hop(hops,node,port):
-    first_hop=send_transaction(node[0],[hops[0]],port,True)
-    #json object
-    first_hop=json.loads(first_hop)
-    first_hop=first_hop[0]
-    
-    hops=np.array(hops[1:])
-    node=np.array(node[1:])
-    hops,node=compress_hops_nodes(hops,node)
+def perform_first_hop(hops,node,send=True):
+
+    if send:
+        first_hop=send_transaction(node[0],[hops[0]],True)
+        #json object
+        first_hop=json.loads(first_hop)
+        first_hop=first_hop[0]
+        
+        hops=np.array(hops[1:])
+        node=np.array(node[1:])
+        hops,node=compress_hops_nodes(hops,node)
+
+    else:
+        first_hop="-1"
+        
+        hops=np.array(hops[1:])
+        node=np.array(node[1:])
+        hops,node=compress_hops_nodes(hops,node)
+
 
     return first_hop,hops,node
